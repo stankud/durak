@@ -15,8 +15,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "bundle-client": "browserify src/client/index.js -o dist/bundle.js -t [ babelify ]",
+    "bundle-client": "browserify src/client/index.js -o dist/client/bundle.js -t [ babelify ]",
     "build-server": "babel src/server --out-dir dist/server",
+    "build": "npm run bundle-client && npm run build-server",
     "flow": "flow; test $? -eq 0 -o $? -eq 2"
   },
   "repository": {

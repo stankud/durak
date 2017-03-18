@@ -1,8 +1,8 @@
 import test from 'tape';
 import clone from '../src/server/clone';
 import generateDeck from '../src/server/generate-deck';
-import generateGameState from '../src/server/generate-game-state';
 import dealer from '../src/server/dealer';
+import generateGameState from '../src/server/generate-game-state';
 
 test('clone()', (t) => {
   const obj = { foo: 'bar', foobar: { baz: 'bar' } };
@@ -46,8 +46,8 @@ test('generateGameState()', (t) => {
   const gameState = generateGameState({ playerCount: 4 });
   t.ok(gameState.deck, 'has a deck');
   t.ok(gameState.trump, 'has a trump card');
+  t.ok(gameState.cardsOffense, 'has offense cards prop');
+  t.ok(gameState.cardsDefense, 'has defense cards prop');
   t.is(gameState.players.length, 4, 'has 4 players');
   t.end();
 });
-
-

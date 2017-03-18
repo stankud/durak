@@ -11,14 +11,16 @@
     "babel-preset-es2017": "^6.22.0",
     "babelify": "^7.3.0",
     "browserify": "^14.1.0",
-    "flow-bin": "^0.41.0"
+    "flow-bin": "^0.41.0",
+    "tape": "^4.6.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "bundle-client": "browserify src/client/index.js -o dist/client/bundle.js -t [ babelify ]",
     "build-server": "babel src/server --out-dir dist/server",
     "build": "npm run bundle-client && npm run build-server",
-    "flow": "flow; test $? -eq 0 -o $? -eq 2"
+    "flow": "flow; test $? -eq 0 -o $? -eq 2",
+    "test": "npm run lint && npm run test:unit",
+    "test:unit": "babel-node test/index.js"
   },
   "repository": {
     "type": "git",
@@ -29,5 +31,18 @@
   "bugs": {
     "url": "https://github.com/stankud/durak/issues"
   },
-  "homepage": "https://github.com/stankud/durak#readme"
+  "homepage": "https://github.com/stankud/durak#readme",
+  "dependencies": {
+    "lodash.shuffle": "^4.2.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.17.0",
+    "babel-plugin-transform-runtime": "^6.15.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-es2017": "^6.16.0",
+    "miclint": "^2.0.0",
+    "snazzy": "^5.0.0",
+    "tape": "^4.6.2"
+  }
 }

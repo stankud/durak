@@ -1,4 +1,3 @@
-import shuffle from 'lodash.shuffle';
 import suits from '../lib/suits';
 import ranks from '../lib/ranks';
 

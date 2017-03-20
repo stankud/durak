@@ -42,6 +42,31 @@ test('dealer.deal()', (t) => {
   t.end();
 });
 
+test('dealer.returnHigherRank()', (t) => {
+  t.is('AS', dealer.returnHigherRank('AS', 'KH'), 'returns correct card');
+  t.is('TH', dealer.returnHigherRank('9S', 'TH'), 'returns correct card');
+  t.is('JC', dealer.returnHigherRank('JC', '6C'), 'returns correct card');
+  t.is('8H', dealer.returnHigherRank('8H', '7D'), 'returns correct card');
+  t.end();
+});
+
+test('dealer.findLowestTrumpPlayer()', (t) => {
+  const gameState = dealer.deal({
+    deck: dealer.shuffle(generateDeck()),
+    players: [{ cards: [] }, { cards: [] }, { cards: [] }, { cards: [] }]
+  });
+  const actualGameState = dealer.findLowestTrumpPlayer(gameState);
+  t.ok(actualGameState.lowestTrump, 'lowestTrump prop is set');
+  t.ok(actualGameState.lowestTrump.card, 'lowestTrump.card prop is set');
+  t.ok(actualGameState.lowestTrump.player >= 0, 'lowestTrump.player prop is set');
+  t.is(gameState.trump[1], actualGameState.lowestTrump.card[1], 'lowestTrump.card is trump suit');
+  t.ok(
+    actualGameState.players[actualGameState.lowestTrump.player].cards.indexOf(actualGameState.lowestTrump.card) >= 0,
+    'correct player index'
+  );
+  t.end();
+});
+
 test('generateGameState()', (t) => {
   const gameState = generateGameState({ playerCount: 4 });
   t.ok(gameState.deck, 'has a deck');

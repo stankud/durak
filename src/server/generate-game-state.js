@@ -2,7 +2,7 @@ import generateDeck from './generate-deck';
 import dealer from './dealer';
 
 export default ({ playerCount }) => {
-  const gameState = {
+  let gameState = {
     deck: dealer.shuffle(generateDeck()),
     players: [],
     cardsOffense: [],
@@ -12,5 +12,6 @@ export default ({ playerCount }) => {
   for (let i = 0; i < playerCount; i+=1) {
     gameState.players.push({ cards: [] });
   }
-  return dealer.deal(gameState);
+  gameState = dealer.deal(gameState);
+  return gameState;
 };

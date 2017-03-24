@@ -74,5 +74,8 @@ test('generateGameState()', (t) => {
   t.ok(gameState.cardsOffense, 'has offense cards prop');
   t.ok(gameState.cardsDefense, 'has defense cards prop');
   t.is(gameState.players.length, 4, 'has 4 players');
+  t.ok(gameState.lowestTrump, 'has lowest trump');
+  t.ok(gameState.lowestTrump.card, 'has lowestTrump.card');
+  t.ok(gameState.lowestTrump.player, 'has lowestTrump.player');
   t.end();
 });

@@ -13,5 +13,6 @@ export default ({ playerCount }) => {
     gameState.players.push({ cards: [] });
   }
   gameState = dealer.deal(gameState);
+  gameState = dealer.findLowestTrumpPlayer(gameState);
   return gameState;
 };

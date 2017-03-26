@@ -1,7 +1,7 @@
-export default {
-  attack: true,
-  defend: true,
-  throwIn: true,
-  endAttack: true,
-  pickUp: true
-};
+export default [
+  'attack',
+  'defend',
+  'throw-in',
+  'end-attack',
+  'pick-up'
+];

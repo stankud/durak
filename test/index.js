@@ -105,28 +105,28 @@ test('dealer.updateLegalMoves() initialUpdate', (t) => {
 test('dealer.returnPlayerGameState()', (t) => {
   const gameState = {
     deck: ['6H','JC','AH','6D','6S','TC','AD','TD','KC','8D','7C','8S'],
-    cardsOffense: [],
+    cardsOffense: ['6C'],
     cardsDefense: [],
     players: [
       {
         id: 'id1',
-        cards: ['KS','JH','JD','7D','6C','7H'],
-        legalMoves: ['attack']
+        cards: ['KS','JH','JD','7D','7H'],
+        legalMoves: ['throw-in']
       },
       {
         id: 'id2',
         cards: ['KH','9D','TH','9C','QH','8C'],
-        legalMoves: []
+        legalMoves: ['defend']
       },
       {
         id: 'id3',
         cards: ['7S','QC','QD','KD','AC','9S'],
-        legalMoves: []
+        legalMoves: ['throw-in']
       },
       {
         id: 'id4',
         cards: ['AS','TS','JS','9H','QS','8H'],
-        legalMoves: []
+        legalMoves: ['throw-in']
       }
     ],
     trump: '6H',
@@ -135,14 +135,28 @@ test('dealer.returnPlayerGameState()', (t) => {
   const expected = {
     cardsPlayer: ['7S','QC','QD','KD','AC','9S'],
     cardsDeckCount: 12,
-    playerLegalMoves: [],
-    cardsOffense: [],
+    playerLegalMoves: ['throw-in'],
+    cardsOffense: ['6C'],
     cardsDefense: [],
     trump: '6H',
-    cardsOpponentsCounts: [6, 6, 6]
+    cardsOpponentsCounts: [6, 5, 6]
   };
   const actual = dealer.returnPlayerGameState('id3', gameState);
-  t.deepEqual(actual, expected, 'returns correct player game state');
+  t.deepEqual(actual.cardsPlayer, expected.cardsPlayer, 'correct cardsPlayer prop');
+  t.is(actual.cardsDeckCount, expected.cardsDeckCount, 'correct cardsDeckCount prop');
+  t.deepEqual(
+    actual.playerLegalMoves,
+    expected.playerLegalMoves,
+    'correct playerLegalMoves prop'
+  );
+  t.deepEqual(actual.cardsOffense, expected.cardsOffense, 'correct cardsOffense prop');
+  t.deepEqual(actual.cardsDefense, expected.cardsDefense, 'correct cardsDefense prop');
+  t.is(actual.trump, expected.trump, 'correct trump prop');
+  t.deepEqual(
+    actual.cardsOpponentsCounts,
+    expected.cardsOpponentsCounts,
+    'correct cardsOpponentsCounts prop'
+  );
   t.end();
 });
 

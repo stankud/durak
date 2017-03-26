@@ -76,7 +76,7 @@ test('dealer.findLowestTrumpPlayer()', (t) => {
   t.end();
 });
 
-test('dealer.updateLegalMoves()', (t) => {
+test('dealer.updateLegalMoves() initialUpdate', (t) => {
   const gameState = {
     deck: ['6H', 'JC', 'AH', '6D', '6S', 'TC', 'AD', 'TD', 'KC', '8D', '7C', '8S'],
     players: [

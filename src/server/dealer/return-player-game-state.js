@@ -1,12 +1,8 @@
 const returnOpponentCardCounts = (index, players) => {
   const cardCountsArrays = players.reduce((prev, cur, curIndex) => {
     const l = cur.cards.length;
-    if (curIndex > index) {
-      prev[0].push(l);
-    }
-    if (curIndex < index) {
-      prev[1].push(l)
-    }
+    if (curIndex > index) prev[0].push(l);
+    if (curIndex < index) prev[1].push(l);
     return prev;
   }, [[],[]]);
   return [].concat(cardCountsArrays[0], cardCountsArrays[1]);

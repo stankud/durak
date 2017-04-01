@@ -4,6 +4,7 @@ import findLowestTrumpPlayer from './find-lowest-trump-player';
 import returnHigherRank from './return-higher-rank';
 import updateLegalMoves from './update-legal-moves';
 import returnPlayerGameState from './return-player-game-state';
+import isValidStateUpdate from './is-valid-state-update';
 
 export default {
   shuffle,
@@ -11,5 +12,6 @@ export default {
   findLowestTrumpPlayer,
   returnHigherRank,
   updateLegalMoves,
-  returnPlayerGameState
+  returnPlayerGameState,
+  isValidStateUpdate
 };

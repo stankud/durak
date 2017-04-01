@@ -13,6 +13,7 @@ export default (playerId, state) => {
   const player = state.players[playerIndex];
   if (!player) throw new Error('Invalid player id');
   const playerGameState = Object.assign({}, {
+    playerId: player.id,
     cardsPlayer: player.cards,
     cardsDeckCount: state.deck.length,
     playerLegalMoves: player.legalMoves,

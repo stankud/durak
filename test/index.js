@@ -150,6 +150,7 @@ test('dealer.returnPlayerGameState()', (t) => {
     lowestTrump: { card:'7H', player:0 }
   };
   const expected = {
+    playerId: 'id3',
     cardsPlayer: ['7S','QC','QD','KD','AC','9S'],
     cardsDeckCount: 12,
     playerLegalMoves: ['throw-in'],
@@ -159,6 +160,7 @@ test('dealer.returnPlayerGameState()', (t) => {
     cardsOpponentsCounts: [6, 5, 6]
   };
   const actual = dealer.returnPlayerGameState('id3', gameState);
+  t.is(actual.playerId, expected.playerId, 'correct player id');
   t.deepEqual(actual.cardsPlayer, expected.cardsPlayer, 'correct cardsPlayer prop');
   t.is(actual.cardsDeckCount, expected.cardsDeckCount, 'correct cardsDeckCount prop');
   t.deepEqual(
@@ -174,5 +176,50 @@ test('dealer.returnPlayerGameState()', (t) => {
     expected.cardsOpponentsCounts,
     'correct cardsOpponentsCounts prop'
   );
+  t.end();
+});
+
+test.skip('isValidStateUpdate()', (t) => {
+  const gameState = {
+    deck: ['6H','JC','AH','6D','6S','TC','AD','TD','KC','8D','7C','8S'],
+    cardsOffense: ['6C'],
+    cardsDefense: [],
+    players: [
+      {
+        id: 'id1',
+        cards: ['KS','JH','JD','7D','7H'],
+        legalMoves: ['throw-in']
+      },
+      {
+        id: 'id2',
+        cards: ['KH','9D','TH','9C','QH','8C'],
+        legalMoves: ['defend']
+      },
+      {
+        id: 'id3',
+        cards: ['7S','QC','QD','KD','AC','9S'],
+        legalMoves: ['throw-in']
+      },
+      {
+        id: 'id4',
+        cards: ['AS','TS','JS','9H','QS','8H'],
+        legalMoves: ['throw-in']
+      }
+    ],
+    trump: '6H',
+    lowestTrump: { card:'7H', player:0 }
+  };
+
+  const playerStateUpdate = {
+    cardsPlayer: ['7S','QC','QD','KD','AC','9S'],
+    cardsDeckCount: 12,
+    playerLegalMoves: ['throw-in'],
+    cardsOffense: ['6C'],
+    cardsDefense: [],
+    trump: '6H',
+    cardsOpponentsCounts: [6, 5, 6]
+  };
+
+
   t.end();
 });

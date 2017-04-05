@@ -7,15 +7,19 @@ const isNoUpdate = diffs => diffs === undefined;
 const isLegalMove = (m, s) => s.playerLegalMoves.indexOf(m) > -1;
 
 export default ({ gameState, playerState }) => {
-  let validUpdate = false;
+  let ret;
   const currentState = returnPlayerGameState(playerState.playerId, gameState);
   const newState = playerState;
   const diffs = diff(currentState, newState);
-  if (isNoUpdate(diffs)) return true;
+  if (isNoUpdate(diffs)) return { result: 'NoUpdate' };
   const move = returnMoveName(currentState, newState);
-  console.log('move:');
-  console.log(move);
   const legal = isLegalMove(move, currentState);
-  const valid = isValidMove(move, currentState, newState);
-  return legal && valid;
+  if (!legal) {
+    ret = { result: 'IllegalMove', move };
+  } else if (!isValidMove(move, currentState, newState)) {
+    ret = { result: 'InvalidMove', move };
+  } else {
+    ret = { result: 'Ok', move };
+  }
+  return ret;
 };

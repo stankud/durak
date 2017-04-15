@@ -11,15 +11,10 @@ export default ({ gameState, playerState }) => {
   const currentState = returnPlayerGameState(playerState.playerId, gameState);
   const newState = playerState;
   const diffs = diff(currentState, newState);
-  if (isNoUpdate(diffs)) return { result: 'NoUpdate' };
   const move = returnMoveName(currentState, newState);
-  const legal = isLegalMove(move, currentState);
-  if (!legal) {
-    ret = { result: 'IllegalMove', move };
-  } else if (!isValidMove(move, currentState, newState)) {
-    ret = { result: 'InvalidMove', move };
-  } else {
-    ret = { result: 'Ok', move };
-  }
+  if (isNoUpdate(diffs)) ret = { result: 'NoUpdate' };  
+  else if (!isLegalMove(move, currentState)) ret = { result: 'IllegalMove', move };
+  else if (!isValidMove(move, currentState, newState)) ret = { result: 'InvalidMove', move };
+  else ret = { result: 'Ok', move };
   return ret;
 };

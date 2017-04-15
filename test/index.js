@@ -450,6 +450,54 @@ test('isValidStateUpdate() an invalid throw-in move is made', (t) => {
   t.end();
 });
 
+test('isValidStateUpdate() a legal throw-in move is made', (t) => {
+  const gameState = {
+    deck: ['6H','JC','AH','6D','7S','TC','AD','TD','KC','8D','7C','8S'],
+    cardsOffense: ['6C'],
+    cardsDefense: [],
+    players: [
+      {
+        id: 'id1',
+        cards: ['KS','JH','JD','7D','7H'],
+        legalMoves: ['throw-in']
+      },
+      {
+        id: 'id2',
+        cards: ['KH','9D','TH','9C','QH','8C'],
+        legalMoves: ['defend']
+      },
+      {
+        id: 'id3',
+        cards: ['6S','QC','QD','KD','AC','9S'],
+        legalMoves: ['throw-in']
+      },
+      {
+        id: 'id4',
+        cards: ['AS','TS','JS','9H','QS','8H'],
+        legalMoves: ['throw-in']
+      }
+    ],
+    trump: '6H',
+    lowestTrump: { card:'7H', player:0 }
+  };
+  const playerState = {
+    playerId: 'id3',
+    cardsPlayer: ['QC','QD','KD','AC','9S'],
+    cardsDeckCount: 12,
+    playerLegalMoves: ['throw-in'],
+    cardsOffense: ['6C','6S'],
+    cardsDefense: [],
+    trump: '6H',
+    cardsOpponentsCounts: [6, 5, 6]
+  };
+
+  const actual = dealer.isValidStateUpdate({ gameState, playerState });
+  const { result, move } = actual;
+  t.is(result, 'Ok', 'correct result');
+  t.is(move, 'throw-in', 'correct move');
+  t.end();
+});
+
 test('isValidStateUpdate() an illegal attack move is made', (t) => {
   const gameState = {
     deck: ['6H','JC','AH','6D','6S','TC','AD','TD','KC','8D','7C','8S'],

@@ -130,23 +130,6 @@ test('dealer.updateLegalMoves() initialUpdate', (t) => {
   t.end();
 });
 
-test('generateGameState()', (t) => {
-  const gameState = generateGameState({ playerIds: ['id1', 'id2', 'id3', 'id4'] });
-  t.ok(gameState.deck, 'has a deck');
-  t.ok(gameState.trump, 'has a trump card');
-  t.ok(gameState.cardsOffense, 'has offense cards prop');
-  t.ok(gameState.cardsDefense, 'has defense cards prop');
-  t.is(gameState.players.length, 4, 'has 4 players');
-  t.ok(gameState.players[0].id, 'player 1 has an id');
-  t.ok(gameState.players[1].id, 'player 2 has an id');
-  t.ok(gameState.players[2].id, 'player 3 has an id');
-  t.ok(gameState.players[3].id, 'player 4 has an id');
-  t.ok(gameState.lowestTrump, 'has lowest trump');
-  t.ok(gameState.lowestTrump.card, 'has lowestTrump.card');
-  t.ok(Number.isInteger(gameState.lowestTrump.player), 'has lowestTrump.player');
-  t.end();
-});
-
 test('dealer.returnPlayerGameState()', (t) => {
   const gameState = {
     deck: ['6H','JC','AH','6D','6S','TC','AD','TD','KC','8D','7C','8S'],
@@ -831,5 +814,29 @@ test('isValidStateUpdate() a legal pick-up move is made', (t) => {
   const { result, move } = actual;
   t.is(result, 'Ok', 'correct result');
   t.is(move, 'pick-up', 'correct move');
+  t.end();
+});
+
+/* *** generateGameState() tests *** */
+test('generateGameState()', (t) => {
+  const gameState = generateGameState({ playerIds: ['id1', 'id2', 'id3', 'id4'] });
+  console.log(JSON.stringify(gameState));
+  t.ok(gameState.deck, 'has a deck');
+  t.ok(gameState.trump, 'has a trump card');
+  t.ok(gameState.cardsOffense, 'has offense cards prop');
+  t.ok(gameState.cardsDefense, 'has defense cards prop');
+  t.is(gameState.deck.length, 12, 'correct deck size');
+  t.is(gameState.players.length, 4, 'has 4 players');
+  t.ok(gameState.players[0].id, 'player 1 has an id');
+  t.ok(gameState.players[0].legalMoves, 'player 1 has legalMoves prop');
+  t.ok(gameState.players[1].id, 'player 2 has an id');
+  t.ok(gameState.players[1].legalMoves, 'player 2 has legalMoves prop');
+  t.ok(gameState.players[2].id, 'player 3 has an id');
+  t.ok(gameState.players[2].legalMoves, 'player 3 has legalMoves prop');
+  t.ok(gameState.players[3].id, 'player 4 has an id');
+  t.ok(gameState.players[3].legalMoves, 'player 4 has legalMoves prop');
+  t.ok(gameState.lowestTrump, 'has lowest trump');
+  t.ok(gameState.lowestTrump.card, 'has lowestTrump.card');
+  t.ok(Number.isInteger(gameState.lowestTrump.player), 'has lowestTrump.player');
   t.end();
 });

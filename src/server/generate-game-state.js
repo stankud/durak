@@ -16,5 +16,6 @@ export default ({ playerIds }) => {
   gameState.players = playerIds.map((id, index) => ({ id, cards: [] }));
   gameState = dealer.deal(gameState);
   gameState = dealer.findLowestTrumpPlayer(gameState);
+  gameState = dealer.updateLegalMoves(gameState);
   return gameState;
 };

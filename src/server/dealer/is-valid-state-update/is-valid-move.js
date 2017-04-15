@@ -9,14 +9,14 @@ const isValidThrowIn = (c, n) => {
 const isValidDefend = (c, n) => {
   const { trump, cardsDefense, cardsOffense } = c;
   const [cardDefense] = diff(n.cardsDefense, cardsDefense);
-  const cardDefenseIdx = n.cardsDefense.indexOf(newCard);
+  const cardDefenseIdx = n.cardsDefense.indexOf(cardDefense);
   const cardOffense = cardsOffense[cardDefenseIdx];
   return canBeatCard({ cardOffense, cardDefense, trump });
 };
 
 export default (m, c, n) => { // move, current state, new state
-  if (m === 'end-attack' || m === 'pick-up') return true;
-  if (m === 'attack' || m === 'throw-in') return isValidThrowIn(c, n);
+  if (m === 'end-attack' || m === 'pick-up' || m === 'attack') return true;
+  if (m === 'throw-in') return isValidThrowIn(c, n);
   if (m === 'defend') return isValidDefend(c, n);
   return null;
 };

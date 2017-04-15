@@ -36,10 +36,11 @@ const isPickUp = (curState, newState) => {
 };
 
 export default (curState, newState) => {
-  if (isEndAttack(curState, newState)) return moves[3];
-  if (isThrowIn(curState, newState)) return moves[2];
-  if (isAttack(curState, newState)) return moves[0];
-  if (isDefend(curState, newState)) return moves[1];
-  if (isPickUp(curState, newState)) return moves[4];
-  return null;
+  let move;
+  if (isEndAttack(curState, newState)) move = moves[3];
+  else if (isThrowIn(curState, newState)) move = moves[2];
+  else if (isAttack(curState, newState)) move = moves[0];
+  else if (isDefend(curState, newState)) move = moves[1];
+  else if (isPickUp(curState, newState)) move = moves[4];
+  return move;
 };

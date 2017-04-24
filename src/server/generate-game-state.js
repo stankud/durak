@@ -7,15 +7,15 @@ export default ({ playerIds }) => {
     throw new Error(`Invalid number of players: ${playerCount}`);
   }
 
-  let gameState = {
+  let ngs = { // new game state
     deck: dealer.shuffle(generateDeck()),
     cardsOffense: [],
     cardsDefense: []
   };
 
-  gameState.players = playerIds.map((id, index) => ({ id, cards: [] }));
-  gameState = dealer.deal(gameState);
-  gameState = dealer.findLowestTrumpPlayer(gameState);
-  gameState = dealer.updateLegalMoves(gameState);
-  return gameState;
+  ngs.players = playerIds.map((id, index) => ({ id, cards: [] }));
+  ngs = dealer.deal(ngs);
+  ngs = dealer.findLowestTrumpPlayer(ngs);
+  ngs = dealer.updateLegalMoves({ cgs: ngs }).ngs;
+  return ngs;
 };

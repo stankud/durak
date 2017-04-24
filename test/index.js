@@ -4,6 +4,7 @@ import clone from '../src/server/clone';
 import generateDeck from '../src/server/generate-deck';
 import dealer from '../src/server/dealer';
 import generateGameState from '../src/server/generate-game-state';
+import updateGameState from '../src/server/update-game-state'
 
 test('clone()', (t) => {
   const obj = { foo: 'bar', foobar: { baz: 'bar' } };
@@ -76,8 +77,8 @@ test('dealer.findLowestTrumpPlayer()', (t) => {
   t.end();
 });
 
-/* *** dealer.updateLegalMoves() tests *** */
-test('dealer.updateLegalMoves() initialUpdate', (t) => {
+/* *** updateLegalMoves() tests *** */
+test('updateLegalMoves() initialUpdate', (t) => {
   const gameState = {
     deck: ['6H', 'JC', 'AH', '6D', '6S', 'TC', 'AD', 'TD', 'KC', '8D', '7C', '8S'],
     players: [
@@ -90,7 +91,7 @@ test('dealer.updateLegalMoves() initialUpdate', (t) => {
     lowestTrump: {card:'7H',player:0}
   };
   const expected = [['attack'], [], [], []];
-  const actualGameState = dealer.updateLegalMoves(gameState);
+  const { ngs: actualGameState } = dealer.updateLegalMoves({ cgs: gameState });
   t.ok(actualGameState.players[0].legalMoves, 'player 1 has legalMoves prop');
   t.ok(
     actualGameState.players[0].legalMoves[0] === 'attack',
@@ -130,7 +131,91 @@ test('dealer.updateLegalMoves() initialUpdate', (t) => {
   t.end();
 });
 
-test('dealer.returnPlayerGameState()', (t) => {
+test.only('updateLegalMoves() attackStarted', (t) => {
+  const currentState = {
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
+    cardsOffense: ['8D'],
+    cardsDefense: ['QD'],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', '7H', 'AC', 'KS', 'QH'],
+      legalMoves: ['throw-in']
+    }, {
+      id: 'id2',
+      cards: ['KD', '7C', 'TH', 'TC', '6D', 'QS'],
+      legalMoves: ['throw-in']
+    }, {
+      id: 'id3',
+      cards: ['9H', '7D', 'TS', 'AD', '6S'],
+      legalMoves: ['throw-in']
+    }, {
+      id: 'id4',
+      cards: ['TD', '6H', 'QC', '8H', 'KH'],
+      legalMoves: ['pick-up', 'defend']
+    }],
+    trump: '8S',
+    round: 1,
+    lowestTrump: {
+      card: '6S',
+      player: 2
+    }
+  };
+  const playerState = {
+    playerId: 'id1',
+    cardsPlayer: ['9C', 'JH', '7H', 'AC', 'KS'],
+    cardsDeckCount: 12,
+    playerLegalMoves: ['throw-in'],
+    cardsOffense: ['8D', 'QH'],
+    cardsDefense: ['QD'],
+    trump: '6H',
+    cardsOpponentsCounts: [6, 5, 5]
+  };
+  const expected = [['attack'], [], [], []];
+  const actualGameState = dealer.updateLegalMoves({ 
+    cgs: currentState,
+    nps: playerState
+  });
+  t.ok(actualGameState.players[0].legalMoves, 'player 1 has legalMoves prop');
+  t.ok(
+    actualGameState.players[0].legalMoves[0] === 'attack',
+    'player 1 has "attack" in legalMoves'
+  );
+  t.ok(actualGameState.players[1].legalMoves, 'player 2 has legalMoves prop');
+  t.ok(
+    actualGameState.players[1].legalMoves.length === 0,
+    'player 2 has no legalMoves'
+  );
+  t.ok(actualGameState.players[2].legalMoves, 'player 3 has legalMoves prop');
+  t.ok(
+    actualGameState.players[2].legalMoves.length === 0,
+    'player 3 has no legalMoves'
+  );
+  t.ok(actualGameState.players[3].legalMoves, 'player 4 has legalMoves prop');
+  t.ok(
+    actualGameState.players[3].legalMoves.length === 0,
+    'player 4 has no legalMoves'
+  );
+  t.deepEqual(
+    actualGameState.players[0].legalMoves, expected[0],
+    'player 1 has correct legalMoves'
+  );
+  t.deepEqual(
+    actualGameState.players[1].legalMoves,
+    expected[1], 'player 2 has correct legalMoves'
+  );
+  t.deepEqual(
+    actualGameState.players[2].legalMoves,
+    expected[2], 'player 3 has correct legalMoves'
+  );
+  t.deepEqual(
+    actualGameState.players[3].legalMoves,
+    expected[3], 'player 4 has correct legalMoves'
+  );
+  t.end();
+});
+
+/* *** returnPlayerGameState() tests *** */
+test('returnPlayerGameState()', (t) => {
   const gameState = {
     deck: ['6H','JC','AH','6D','6S','TC','AD','TD','KC','8D','7C','8S'],
     cardsOffense: ['6C'],
@@ -820,7 +905,6 @@ test('isValidStateUpdate() a legal pick-up move is made', (t) => {
 /* *** generateGameState() tests *** */
 test('generateGameState()', (t) => {
   const gameState = generateGameState({ playerIds: ['id1', 'id2', 'id3', 'id4'] });
-  console.log(JSON.stringify(gameState));
   t.ok(gameState.deck, 'has a deck');
   t.ok(gameState.trump, 'has a trump card');
   t.ok(gameState.cardsOffense, 'has offense cards prop');
@@ -839,4 +923,46 @@ test('generateGameState()', (t) => {
   t.ok(gameState.lowestTrump.card, 'has lowestTrump.card');
   t.ok(Number.isInteger(gameState.lowestTrump.player), 'has lowestTrump.player');
   t.end();
+});
+
+/* *** updateGameState() roundOver tests *** */
+test.skip('updateGameState()', (t) => {
+  const currentState = {
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
+    cardsOffense: ['8D','QH'],
+    cardsDefense: ['QD','KH'],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', '7H', 'AC', 'KS'],
+      legalMoves: ['throw-in']
+    }, {
+      id: 'id2',
+      cards: ['KD', '7C', 'TH', 'TC', '6D', 'QS'],
+      legalMoves: ['throw-in']
+    }, {
+      id: 'id3',
+      cards: ['9H', '7D', 'TS', 'AD', '6S'],
+      legalMoves: ['throw-in']
+    }, {
+      id: 'id4',
+      cards: ['TD', '6H', 'QC', '8H'],
+      legalMoves: ['pick-up']
+    }],
+    trump: '8S',
+    round: 1,
+    lowestTrump: {
+      card: '6S',
+      player: 2
+    }
+  };
+  const playerState = {
+    playerId: 'id2',
+    cardsPlayer: ['KH','9D','TH','9C','QH','8C','6C'],
+    cardsDeckCount: 12,
+    playerLegalMoves: ['defend'],
+    cardsOffense: [],
+    cardsDefense: [],
+    trump: '6H',
+    cardsOpponentsCounts: [6, 6, 5]
+  };
 });

@@ -1,5 +1,7 @@
 export default class Player {
-  constructor({ id }) {
+  constructor({ id, cards = [] })
+   {
     this.id = id;
+    this.cards = cards;
   }
 }

@@ -4,7 +4,8 @@
   "description": "Durak game",
   "main": "dist/server/index.js",
   "dependencies": {
-    "babel-runtime": "^6.18.0"
+    "babel-runtime": "^6.18.0",
+    "lodash.shuffle": "^4.2.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -25,6 +26,7 @@
     "deploy": "npm test && npm run build && node-lambda deploy -e production -f deploy.env",
     "test": "npm run lint && npm run test:unit",
     "test:unit": "babel-tape-runner \"src/**/test.js\" | faucet",
+    "test:single": "babel-tape-runner",
     "lint": "miclint | snazzy"
   },
   "repository": {

@@ -24,6 +24,8 @@ export default class Deck {
     const cards = [];
     suits.forEach(suit => Object.keys(ranks).forEach(rank => cards.push(new Card({ rank, suit }))));
     this.cards = cards;
+    this.suits = suits;
+    this.ranks = ranks;
   }
 
   shuffle () {

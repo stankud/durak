@@ -13,13 +13,17 @@ export default class Game {
     this.cardsOffense = [];
     this.cardsDefense = [];
     this.players = playerIds.map(id => new Player({ id }));
-    this.deal();
-    this.setTrump();
-    this.determineFirstPlayer();
+    this._deal();
+    this._setTrump();
+    this._determineFirstPlayer();
     // ngs = dealer.updateLegalMoves({ cgs: ngs }).ngs;
   }
+  /* *** PUBLIC *** */
+  makeMove() {
 
-  deal() {
+  }
+  /* *** PRIVATE *** */
+  _deal() {
     // give out cards to players
     this.players.forEach((player) => {
       while (player.cards.length < 6) {
@@ -31,24 +35,27 @@ export default class Game {
     this.round ? this.round +=1 : this.round = 1;
   }
 
-  setTrump () {
+  _setTrump () {
     this.deck.cards.unshift(this.deck.cards.pop());
-    this.trump = this.deck.cards[0];
+    this.trumpCard = this.deck.cards[0];
   }
 
-  determineFirstPlayer() {
-    const { players, trump: { rank: trumpRank, suit: trumpSuit} } = this;
+  _determineFirstPlayer() {
+    const { players, trumpCard: { rank: trumpRank, suit: trumpSuit }} = this;
     const lt = {}; // lowestTrump
-    const setLowestTrump = (card, index) => {
-      if (card[1] === trumpSuit) {
-        if (!lt.card || (lt.card === dealer.returnHigherRank(lt.card, card))) {
+    const setLowestTrump = (card, player) => {
+      if (card.suit === trumpSuit) {
+        if (!lt.card || (lt.card === this._returnHigherRank(lt.card, card))) {
           lt.card = card;
-          lt.player = index;
+          lt.player = player;
         }
       }
     };
-    players.forEach((p, i) => p.cards.forEach(c => setLowestTrump(c, i)));
+    players.forEach((p) => p.cards.forEach(c => setLowestTrump(c, p)));
     this.lowestTrump = lt;
-    return this;
+  }
+
+  _returnHigherRank(card1, card2) {
+    return this.deck.ranks[card1.rank] > this.deck.ranks[card2.rank] ? card1 : card2;
   }
 }

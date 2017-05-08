@@ -20,15 +20,23 @@ const ranks = {
 };
 
 export default class Deck {
-  constructor() {
-    const cards = [];
-    suits.forEach(suit => Object.keys(ranks).forEach(rank => cards.push(new Card({ rank, suit }))));
-    this.cards = cards;
+  constructor({ savedDeck } = {}) {
+    this.cards = [];
     this.suits = suits;
     this.ranks = ranks;
+    if (savedDeck) this._loadSavedDeck({ savedDeck });
+    else this._createNewDeck();
   }
-
+  /* *** PUBLIC *** */
   shuffle () {
     this.cards = shuffle(this.cards);
+  }
+  /* *** PRIVATE *** */
+  _createNewDeck() {
+    suits.forEach(suit => Object.keys(ranks).forEach(rank => this.cards.push(new Card({ rank, suit }))));
+  }
+
+  _loadSavedDeck({ savedDeck }) {
+    savedDeck.forEach(card => this.cards.push(new Card({ rank: card[1], suit: card[0]})));
   }
 }

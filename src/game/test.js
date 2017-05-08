@@ -11,6 +11,7 @@ test('Game', (t) => {
   t.is(game.id, id, 'has an id');
   t.is(game.players[0].id, playerIds[0]);
   t.true(game.trumpCard, 'has a trumpCard prop');
+  t.true(game.round, 'has a round prop');
   t.true(game.deck instanceof Deck, 'has a deck');
   t.true(game.lowestTrump.player instanceof Player, 'has a lowest trump player');
   t.true(game.lowestTrump.card instanceof Card, 'has a lowest trump card');

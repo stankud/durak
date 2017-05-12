@@ -1,14 +1,31 @@
 import Player from '../player';
 import Deck from '../deck';
 
+const moves = [
+  'attack',
+  'defend',
+  'throw-in',
+  'end-attack',
+  'pick-up'
+];
+
 export default class Game {
-  constructor({ id, playerIds }) {
+  constructor({ id, playerIds, savedGame }) {
+    if (savedGame) this._loadSavedGame({ savedGame });
+    else this._createNewGame({ id, playerIds });
+  }
+  /* *** PUBLIC *** */
+  makeMove() {
+
+  }
+  /* *** PRIVATE *** */
+  _createNewGame({ id, playerIds }) {
     const playerCount = playerIds.length;
     if (playerCount > 5 || playerCount < 2) {
       throw new Error(`Invalid number of players: ${playerCount}`);
     }
     this.id = id;
-    this.deck = new Deck()
+    this.deck = new Deck();
     this.deck.shuffle();
     this.cardsOffense = [];
     this.cardsDefense = [];
@@ -18,11 +35,11 @@ export default class Game {
     this._determineFirstPlayer();
     // ngs = dealer.updateLegalMoves({ cgs: ngs }).ngs;
   }
-  /* *** PUBLIC *** */
-  makeMove() {
 
+  _loadSavedGame({ savedGame }) {
+    this.id = id;
   }
-  /* *** PRIVATE *** */
+
   _deal() {
     // give out cards to players
     this.players.forEach((player) => {

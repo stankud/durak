@@ -16,6 +16,11 @@ export default class Game {
     else this._createNewGame({ id, playerIds });
   }
   /* *** PUBLIC *** */
+
+  saveGame() {
+    
+  }
+
   makeMove() {
 
   }

@@ -18,7 +18,7 @@ test('Game._createNewGame()', (t) => {
   t.end();
 });
 
-test.only('Game._loadSavedGame()', (t) => {
+test('Game._loadSavedGame()', (t) => {
   const savedGame = {
     id: 'gameId1',
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
@@ -49,12 +49,19 @@ test.only('Game._loadSavedGame()', (t) => {
     }
   };
   const game = new Game({ savedGame });
-  t.is(game.id, savedGame.id, 'has an id');
-  t.is(game.players[0].id, savedGame.players[0].id);
-  t.true(game.trumpCard, 'has a trumpCard prop');
-  t.true(game.round, 'has a round prop');
-  t.true(game.deck instanceof Deck, 'has a deck');
+  t.is(game.id, savedGame.id, 'loads correct id prop');
+  t.is(game.round, savedGame.round, 'loads correct round prop');
+  t.is(game.players[0].id, savedGame.players[0].id, 'loads correct player 1 id');
+  t.is(game.players[1].id, savedGame.players[1].id, 'loads correct player 2 id');
+  t.is(game.players[2].id, savedGame.players[2].id, 'loads correct player 3 id');
+  t.is(game.players[3].id, savedGame.players[3].id, 'loads correct player 4 id');
+  t.true(game.deck instanceof Deck, 'deck is instance of Deck Class');
+  t.true(game.players[0] instanceof Player, 'player 1 is instance of Player Class');
+  t.true(game.players[1] instanceof Player, 'player 2 is instance of Player Class');
+  t.true(game.players[2] instanceof Player, 'player 3 is instance of Player Class');
+  t.true(game.players[3] instanceof Player, 'player 4 is instance of Player Class');
   t.true(game.lowestTrump.player instanceof Player, 'has a lowest trump player');
+  t.true(game.trumpCard instanceof Card, 'has a trump card');
   t.true(game.lowestTrump.card instanceof Card, 'has a lowest trump card');
   t.end();
 });

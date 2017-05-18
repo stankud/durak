@@ -18,9 +18,9 @@ test('Game._createNewGame()', (t) => {
   t.end();
 });
 
-test.skip('Game._loadSavedGame()', (t) => {
-  const id = 'gameId1';
+test.only('Game._loadSavedGame()', (t) => {
   const savedGame = {
+    id: 'gameId1',
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
     cardsOffense: ['8D'],
     cardsDefense: ['QD'],
@@ -41,16 +41,16 @@ test.skip('Game._loadSavedGame()', (t) => {
       cards: ['TD', '6H', 'QC', '8H', 'KH'],
       legalMoves: ['pick-up', 'defend']
     }],
-    trump: '8S',
+    trumpCard: '8S',
     round: 1,
     lowestTrump: {
       card: '6S',
-      player: 2
+      player: 'id3'
     }
   };
-  const game = new Game({ id, savedGame });
-  t.is(game.id, id, 'has an id');
-  t.is(game.players[0].id, playerIds[0]);
+  const game = new Game({ savedGame });
+  t.is(game.id, savedGame.id, 'has an id');
+  t.is(game.players[0].id, savedGame.players[0].id);
   t.true(game.trumpCard, 'has a trumpCard prop');
   t.true(game.round, 'has a round prop');
   t.true(game.deck instanceof Deck, 'has a deck');

@@ -1,5 +1,6 @@
 import Player from '../player';
 import Deck from '../deck';
+import Card from '../card'
 
 const moves = [
   'attack',
@@ -37,7 +38,33 @@ export default class Game {
   }
 
   _loadSavedGame({ savedGame }) {
+    const {
+      id,
+      savedDeck,
+      cardsOffense,
+      cardsDefense,
+      players,
+      trumpCard,
+      round,
+      lowestTrump
+    } = savedGame;
     this.id = id;
+    this.deck = new Deck({ savedDeck });
+    this.cardsOffense = cardsOffense;
+    this.cardsDefense = cardsDefense;
+    this.players = players.map(({ id, cards }) => new Player({ id, cards }));
+    this.trumpCard = new Card({
+      rank: trumpCard[0],
+      suit: trumpCard[1]
+    });
+    this.lowestTrump = {
+      card: this._getCard({
+        rank: lowestTrump.card[0],
+        suit: lowestTrump.card[1]
+      }),
+      player: this._getPlayerById(lowestTrump.player)
+    };
+    this.round = round;
   }
 
   _deal() {
@@ -74,5 +101,15 @@ export default class Game {
 
   _returnHigherRank(card1, card2) {
     return this.deck.ranks[card1.rank] > this.deck.ranks[card2.rank] ? card1 : card2;
+  }
+
+  _getPlayerById(id) {
+    const player = this.players.find((player) => player.id === id);
+    return player;
+  }
+
+  _getCard({ suit, rank }) {
+    const card = this.deck.cards.find((card) => card.suit === suit && card.rank === rank);
+    return card;
   }
 }

@@ -2,12 +2,18 @@ import Player from '../player';
 import Deck from '../deck';
 import Card from '../card'
 
-const moves = [
+const MOVES = [
   'attack',
   'defend',
   'throw-in',
   'end-attack',
   'pick-up'
+];
+
+const STATUSES = [
+  'attacker',
+  'defender',
+  'thrower'
 ];
 
 export default class Game {
@@ -17,12 +23,17 @@ export default class Game {
   }
   /* *** PUBLIC *** */
 
-  saveGame() {
-    
+  toJSON() {
+    const json = {};
+    for (const prop in this) {
+      json[prop] = this[prop].toJSON ?
+        this[prop].toJSON() :
+        this[prop];
+    }
+    return json;
   }
 
   makeMove() {
-
   }
   /* *** PRIVATE *** */
   _createNewGame({ id, playerIds }) {
@@ -45,30 +56,29 @@ export default class Game {
   _loadSavedGame({ savedGame }) {
     const {
       id,
-      savedDeck,
+      deck,
       cardsOffense,
       cardsDefense,
       players,
       trumpCard,
       round,
-      lowestTrump
+      lowestTrumpCard,
+      lowestTrumpPlayerId
     } = savedGame;
     this.id = id;
-    this.deck = new Deck({ savedDeck });
+    this.deck = new Deck({ savedDeck: deck });
     this.cardsOffense = cardsOffense;
     this.cardsDefense = cardsDefense;
-    this.players = players.map(({ id, cards }) => new Player({ id, cards }));
+    this.players = players.map(({ id, cards, status }) => new Player({ id, cards, status }));
     this.trumpCard = new Card({
       rank: trumpCard[0],
       suit: trumpCard[1]
     });
-    this.lowestTrump = {
-      card: this._getCard({
-        rank: lowestTrump.card[0],
-        suit: lowestTrump.card[1]
-      }),
-      player: this._getPlayerById(lowestTrump.player)
-    };
+    this.lowestTrumpCard = new Card({
+      rank: lowestTrumpCard[0],
+      suit: lowestTrumpCard[1]
+    });
+    this.lowestTrumpPlayerId = lowestTrumpPlayerId;
     this.round = round;
   }
 
@@ -101,7 +111,8 @@ export default class Game {
       }
     };
     players.forEach((p) => p.cards.forEach(c => setLowestTrump(c, p)));
-    this.lowestTrump = lt;
+    this.lowestTrumpCard = lt.card;
+    this.lowestTrumpPlayerId = lt.player.id;
   }
 
   _returnHigherRank(card1, card2) {

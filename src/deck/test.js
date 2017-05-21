@@ -18,3 +18,10 @@ test('Deck_.loadSavedDeck()', (t) => {
   t.is(typeof deck.shuffle, 'function', 'has a shuggle method');
   t.end();
 });
+
+test('Deck.toJSON', (t) => {
+  const savedDeck = ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'];
+  const deck = new Deck({ savedDeck });
+  t.deepEqual(deck.toJSON(), savedDeck, 'returns correct JSON');
+  t.end();  
+});

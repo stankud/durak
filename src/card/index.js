@@ -7,4 +7,8 @@ export default class Card {
   toString() {
     return `${this.rank}${this.suit}`;
   }
+
+  toJSON() {
+    return this.toString()
+  }
 }

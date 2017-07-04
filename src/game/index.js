@@ -3,11 +3,11 @@ import Deck from '../deck';
 import Card from '../card'
 
 const MOVES = [
-  'attack',
-  'defend',
-  'throw-in',
-  'end-attack',
-  'pick-up'
+  'attack', // 0
+  'defend', // 1
+  'throw-in', // 2
+  'end-attack', // 3
+  'pick-up' // 4
 ];
 
 const STATUSES = [
@@ -33,8 +33,34 @@ export default class Game {
     return json;
   }
 
-  makeMove() {
+  makeMove({ move }) {
+    const result = { ok: false };
+    const player = this._getPlayerById(move.playerId);
+    const card = new Card({ rank: move.card[0], suit: move.card[1] });
+    const type = move.type;
+    if (!player) {
+      result.message = 'Player not found';
+      return result;
+    }
+    const { hasCard: playerHasCard } = player.doesHaveCard(card);
+    if (!playerHasCard) {
+      result.message = "Player doesn't have card";
+      return result;
+    }
+    const { valid, message: ValidateMessage } = this._validateMove({ player, card, type });
+    if (!valid) {
+      result.message = validateMessage;
+      return result;
+    }
+    const executeMoveResult = this._executeMove({ player, card, type });
+    if (!executeMoveResult.ok) {
+      result.message = executeMoveResult.message;
+      return result;
+    }
+    result.ok = true;
+    return result;
   }
+
   /* *** PRIVATE *** */
   _createNewGame({ id, playerIds }) {
     const playerCount = playerIds.length;
@@ -67,9 +93,12 @@ export default class Game {
     } = savedGame;
     this.id = id;
     this.deck = new Deck({ savedDeck: deck });
-    this.cardsOffense = cardsOffense;
-    this.cardsDefense = cardsDefense;
-    this.players = players.map(({ id, cards, status }) => new Player({ id, cards, status }));
+    this.cardsOffense = cardsOffense.map(c => new Card({ rank: c[0], suit: c[1] }));
+    this.cardsDefense = cardsDefense.map(c => new Card({ rank: c[0], suit: c[1] }));
+    this.players = players.map(({ id, cards, status }) => {
+      const _cards = cards.map(c => new Card({ rank: c[0], suit: c[1] }));
+      return new Player({ id, cards: _cards, status });
+    });
     this.trumpCard = new Card({
       rank: trumpCard[0],
       suit: trumpCard[1]
@@ -94,7 +123,7 @@ export default class Game {
     this.round ? this.round +=1 : this.round = 1;
   }
 
-  _setTrump () {
+  _setTrump() {
     this.deck.cards.unshift(this.deck.cards.pop());
     this.trumpCard = this.deck.cards[0];
   }
@@ -127,5 +156,87 @@ export default class Game {
   _getCard({ suit, rank }) {
     const card = this.deck.cards.find((card) => card.suit === suit && card.rank === rank);
     return card;
+  }
+
+  _validateMove({ type, player, card }) {
+    const result = { valid: false };
+    const playerStatus = player.status;
+    switch (type) { // move type
+      case MOVES[0]: // attack
+        if (['attacker'].indexOf(playerStatus) < 0) {
+          result.message = `Incorrect player status: ${playerStatus}`;
+          break;
+        }
+        result.valid = true;        
+        break;
+      case MOVES[1]: // defend
+        if (['defender'].indexOf(playerStatus) < 0) {
+          result.message = `Incorrect player status: ${playerStatus}`;
+          break;
+        }
+        // can card be thown in?
+        result.valid = true;
+        break;
+      case MOVES[2]: // throw-in
+        if (['thrower', 'attacker'].indexOf(playerStatus) < 0) {
+          result.message = `Incorrect player status: ${playerStatus}`;
+          break;
+        }
+        const { canThrowIn } = this._canThrowInCard(card);
+        if (canThrowIn) {
+          result.valid = true;
+          break;
+        }
+        break;
+      case MOVES[3]: // end-attack
+        if (['thrower', 'attacker', 'defender'].indexOf(playerStatus) < 0) {
+          result.message = `Incorrect player status: ${playerStatus}`;
+          break;
+        }
+        result.valid = true;
+        break;
+      case MOVES[4]: // pick-up
+        if (['defender'].indexOf(playerStatus) < 0) {
+          result.message = `Incorrect player status: ${playerStatus}`;
+          break;
+        }
+        result.valid = true;
+        break;
+      default:
+        result.message = `Unsupported move type: ${type}`;
+    }
+    return result;
+  }
+
+  _executeMove({ player, card, type }) {
+    const result = { ok: false };
+    switch (type) {
+      case MOVES[0]:
+        
+        break;
+      case MOVES[1]:
+
+        break;
+      case MOVES[2]:
+        result.ok = true;
+        break;
+      case MOVES[3]:
+
+        break;
+      case MOVES[4]:
+
+        break;
+      default:
+        result.message = `Unsupported move type: ${type}`;
+    }
+    return result;
+  }
+
+  _canThrowInCard(card) {
+    const result = this.cardsDefense.concat(this.cardsOffense).find((tableCard) => {
+      return tableCard.rank === card.rank
+    });
+    const canThrowIn = !!result;
+    return { canThrowIn };
   }
 }

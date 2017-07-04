@@ -99,7 +99,7 @@ test('Game.toJSON()', (t) => {
   t.end();
 });
 
-test('Game.makeMove()', (t) => {
+test.only('Game.makeMove()', (t) => {
   const gameBefore = {
     id: 'gameId1',
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
@@ -129,7 +129,7 @@ test('Game.makeMove()', (t) => {
   };
   const move = {
     playerId: 'id1',
-    move: 'throw-in',
+    type: 'throw-in',
     card: 'QH'
   };
   const gameAfter = {
@@ -160,6 +160,8 @@ test('Game.makeMove()', (t) => {
     lowestTrumpPlayerId: 'id3'
   };
   const game = new Game({ savedGame: gameBefore });
-  game.makeMove({ move });
+  const { ok, message } = game.makeMove({ move });
+  console.log(message);
+  t.true(ok, 'result is ok');
   t.end();
 });

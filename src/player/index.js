@@ -16,4 +16,9 @@ export default class Player {
     }
     return json;
   }
+
+  doesHaveCard(card) {
+    const hasCard = !!(this.cards.find(playerCard => playerCard.toString() === card.toString()));
+    return { hasCard };
+  }
 }

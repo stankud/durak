@@ -26,9 +26,15 @@ export default class Game {
   toJSON() {
     const json = {};
     for (const prop in this) {
-      json[prop] = this[prop].toJSON ?
-        this[prop].toJSON() :
-        this[prop];
+      if (Array.isArray(this[prop])) {
+        json[prop] = this[prop].map((item) => (
+          item.toJSON ? item.toJSON() : item
+        ));
+      } else {
+        json[prop] = this[prop].toJSON ?
+          this[prop].toJSON() :
+          this[prop];
+      }
     }
     return json;
   }
@@ -211,19 +217,21 @@ export default class Game {
   _executeMove({ player, card, type }) {
     const result = { ok: false };
     switch (type) {
-      case MOVES[0]:
+      case MOVES[0]: // attack
         
         break;
-      case MOVES[1]:
+      case MOVES[1]: // defend
 
         break;
-      case MOVES[2]:
+      case MOVES[2]: // throw-in
+        player.removeCard(card);
+        this.cardsOffense.push(card);
         result.ok = true;
         break;
-      case MOVES[3]:
+      case MOVES[3]: // end-attack
 
         break;
-      case MOVES[4]:
+      case MOVES[4]: // pick-up
 
         break;
       default:

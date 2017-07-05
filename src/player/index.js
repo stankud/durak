@@ -21,4 +21,16 @@ export default class Player {
     const hasCard = !!(this.cards.find(playerCard => playerCard.toString() === card.toString()));
     return { hasCard };
   }
+
+  removeCard(card) {
+    const result = { ok: false };
+    const idx = this.cards.findIndex(playerCard => playerCard.toString() === card.toString());
+    if (idx < 0 ) {
+      result.message = `Unable to remomve non-exisitng card: ${card.toString()}`;
+      return result;
+    }
+    this.cards.splice(-1, 1);
+    result.ok = true;
+    return result;
+  }
 }

@@ -164,7 +164,7 @@ export default class Game {
     return card;
   }
 
-  _validateMove({ type, player, card }) {
+  _validateMove({ type, player, card, cardOffense }) {
     const result = { valid: false };
     const playerStatus = player.status;
     switch (type) { // move type
@@ -180,7 +180,7 @@ export default class Game {
           result.message = `Incorrect player status: ${playerStatus}`;
           break;
         }
-        // can card be thown in?
+        // can card be defended?
         result.valid = true;
         break;
       case MOVES[2]: // throw-in
@@ -246,5 +246,9 @@ export default class Game {
     });
     const canThrowIn = !!result;
     return { canThrowIn };
+  }
+
+  _canBeatCard({ card, cardOffense }) {
+
   }
 }

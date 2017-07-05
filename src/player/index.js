@@ -33,4 +33,13 @@ export default class Player {
     result.ok = true;
     return result;
   }
+
+  hasCards() {
+    const hasCards = this.cards.length > 0;
+    return { hasCards };
+  }
+
+  hasFullHand() {
+    return this.cards.length === 6;
+  }
 }

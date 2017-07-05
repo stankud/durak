@@ -72,6 +72,7 @@ test('Game.toJSON()', (t) => {
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
     cardsOffense: ['8D'],
     cardsDefense: ['QD'],
+    endAttackPlayerIdList: [],
     players: [{
       id: 'id1',
       cards: ['9C', 'JH', '7H', 'AC', 'KS', 'QH'],
@@ -137,6 +138,7 @@ test('Game.makeMove() throw-in', (t) => {
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
     cardsOffense: ['8D', 'QH'],
     cardsDefense: ['QD'],
+    endAttackPlayerIdList: [],
     players: [{
       id: 'id1',
       cards: ['9C', 'JH', '7H', 'AC', 'KS'],
@@ -162,6 +164,7 @@ test('Game.makeMove() throw-in', (t) => {
   const game = new Game({ savedGame: gameBefore });
   const { ok, message } = game.makeMove({ move });
   t.true(ok, 'result is ok');
+  t.is(message, undefined, 'no message is returned');
   t.is(game.cardsOffense[1].toString(), move.card, 'card was moved to cardsOffense');
   const player = game._getPlayerById(move.playerId);
   t.is(player.cards.length, 5, 'player has 1 less card');
@@ -210,6 +213,7 @@ test('Game.makeMove() defend', (t) => {
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
     cardsOffense: ['8D', 'QH'],
     cardsDefense: ['QD', 'KH'],
+    endAttackPlayerIdList: [],
     players: [{
       id: 'id1',
       cards: ['9C', 'JH', '7H', 'AC', 'KS'],
@@ -245,7 +249,7 @@ test('Game.makeMove() defend', (t) => {
 });
 
 test('Game.makeMove() end-attack', (t) => {
-  const gameAfter = {
+  const gameBefore = {
     id: 'gameId1',
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
     cardsOffense: ['8D', 'QH'],
@@ -273,19 +277,112 @@ test('Game.makeMove() end-attack', (t) => {
     lowestTrumpPlayerId: 'id3'
   };
   const move = {
-    playerId: 'id4',
-    type: 'defend',
-    card: 'KH',
-    cardOffense: 'QH'
+    playerId: 'id1',
+    type: 'end-attack'
+  };
+  const gameAfter = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
+    cardsOffense: ['8D', 'QH'],
+    cardsDefense: ['QD', 'KH'],
+    endAttackPlayerIdList: ['id1'],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', '7H', 'AC', 'KS'],
+      status: 'thrower'
+    }, {
+      id: 'id2',
+      cards: ['KD', '7C', 'TH', 'TC', '6D', 'QS'],
+      status: 'thrower'
+    }, {
+      id: 'id3',
+      cards: ['9H', '7D', 'TS', 'AD', '6S'],
+      status: 'attacker'
+    }, {
+      id: 'id4',
+      cards: ['TD', '6H', 'QC', '8H'],
+      status: 'defender'
+    }],
+    trumpCard: '8S',
+    round: 1,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
   };
   const game = new Game({ savedGame: gameBefore });
   const { ok, message } = game.makeMove({ move });
   t.true(ok, 'result is ok');
-  t.is(game.cardsDefense[1].toString(), move.card, 'card was moved to cardsDefense');
-  const player = game._getPlayerById(move.playerId);
-  t.is(player.cards.length, 4, 'player has 1 less card');
-  const card = player.cards.find((playerCard) => playerCard.toString() === move.card );
-  t.is(card, undefined, 'player no longer has the card');
+  t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
+  t.end();
+});
+
+test.only('Game.makeMove() end-attack and end round', (t) => {
+  const gameBefore = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
+    cardsOffense: ['8D', 'QH'],
+    cardsDefense: ['QD', 'KH'],
+    endAttackPlayerIdList: ['id1', 'id2', 'id3'],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', '7H', 'AC', 'KS'],
+      status: 'thrower'
+    }, {
+      id: 'id2',
+      cards: ['KD', '7C', 'TH', 'TC', '6D', 'QS'],
+      status: 'thrower'
+    }, {
+      id: 'id3',
+      cards: ['9H', '7D', 'TS', 'AD', '6S'],
+      status: 'attacker'
+    }, {
+      id: 'id4',
+      cards: ['TD', '6H', 'QC', '8H'],
+      status: 'defender'
+    }],
+    trumpCard: '8S',
+    round: 1,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
+  };
+  const move = {
+    playerId: 'id4',
+    type: 'end-attack'
+  };
+  const gameAfter = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD'],
+    cardsOffense: [],
+    cardsDefense: [],
+    cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
+    endAttackPlayerIdList: [],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', '7H', 'AC', 'KS', '8C'],
+      status: 'defender'
+    }, {
+      id: 'id2',
+      cards: ['KD', '7C', 'TH', 'TC', '6D', 'QS'],
+      status: 'thrower'
+    }, {
+      id: 'id3',
+      cards: ['9H', '7D', 'TS', 'AD', '6S', 'AH'],
+      status: 'thrower'
+    }, {
+      id: 'id4',
+      cards: ['TD', '6H', 'QC', '8H', '9S', 'JC'],
+      status: 'attacker'
+    }],
+    trumpCard: '8S',
+    round: 2,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
+  };
+  const game = new Game({ savedGame: gameBefore });
+  const { ok, message } = game.makeMove({ move });
+  t.true(ok, 'result is ok');
+  t.is(game.round, 2, 'round incremented');
+  t.is(game.cardsOffense.length, 0, 'cardsOffense reset');
+  t.is(game.cardsDefense.length, 0, 'cardsDefense reset');
   t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
   t.end();
 });

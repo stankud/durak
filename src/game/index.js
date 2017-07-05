@@ -13,7 +13,8 @@ const MOVES = [
 const STATUSES = [
   'attacker',
   'defender',
-  'thrower'
+  'thrower',
+  'winner'
 ];
 
 export default class Game {
@@ -42,7 +43,14 @@ export default class Game {
   makeMove({ move }) {
     const result = { ok: false };
     const player = this._getPlayerById(move.playerId);
-    const card = new Card({ rank: move.card[0], suit: move.card[1] });
+    const { canMove } = this._canMove({ player });
+    if (!canMove) {
+      result.message = `Player already ended attack: ${player.id}`;
+      return result;
+    }
+    const card = move.card
+      ? new Card({ rank: move.card[0], suit: move.card[1] })
+      : null;
     const cardOffense = move.cardOffense
       ? new Card({ rank: move.cardOffense[0], suit: move.cardOffense[1] })
       : null;
@@ -51,10 +59,12 @@ export default class Game {
       result.message = 'Player not found';
       return result;
     }
-    const { hasCard: playerHasCard } = player.doesHaveCard(card);
-    if (!playerHasCard) {
-      result.message = "Player doesn't have card";
-      return result;
+    if (card) {
+      const { hasCard: playerHasCard } = player.doesHaveCard(card);
+      if (!playerHasCard) {
+        result.message = "Player doesn't have card";
+        return result;
+      }
     }
     const { valid, message: ValidateMessage } = this._validateMove({ player, card, type, cardOffense });
     if (!valid) {
@@ -65,6 +75,11 @@ export default class Game {
     if (!executeMoveResult.ok) {
       result.message = executeMoveResult.message;
       return result;
+    }
+    const { canEndRound } = this._canEndRound();
+    if (canEndRound) {
+      this._endRound();
+      result.message = 'Round ended';
     }
     result.ok = true;
     return result;
@@ -81,6 +96,7 @@ export default class Game {
     this.deck.shuffle();
     this.cardsOffense = [];
     this.cardsDefense = [];
+    this.endAttackPlayerIdList = [];
     this.players = playerIds.map(id => new Player({ id }));
     this._deal();
     this._setTrump();
@@ -94,6 +110,7 @@ export default class Game {
       deck,
       cardsOffense,
       cardsDefense,
+      endAttackPlayerIdList,
       players,
       trumpCard,
       round,
@@ -104,6 +121,7 @@ export default class Game {
     this.deck = new Deck({ savedDeck: deck });
     this.cardsOffense = cardsOffense.map(c => new Card({ rank: c[0], suit: c[1] }));
     this.cardsDefense = cardsDefense.map(c => new Card({ rank: c[0], suit: c[1] }));
+    this.endAttackPlayerIdList = endAttackPlayerIdList || [];
     this.players = players.map(({ id, cards, status }) => {
       const _cards = cards.map(c => new Card({ rank: c[0], suit: c[1] }));
       return new Player({ id, cards: _cards, status });
@@ -121,15 +139,25 @@ export default class Game {
   }
 
   _deal() {
-    // give out cards to players
-    this.players.forEach((player) => {
-      while (player.cards.length < 6) {
-        player.cards.push(this.deck.cards.pop());
+    const attackerIdx = this._getAttackerIdx();
+    const playerCount = this.players.length;
+    if (attackerIdx < 0 ) { // first deal
+      this.players.forEach((player) => {
+        while (player.cards.length < 6) {
+          player.cards.push(this.deck.cards.pop());
+        }
+      });
+    } else { // subsequent deals
+      labelCancelLoops: for (let i = 0; i < playerCount; i += 1) {
+        let playerIdx = i + attackerIdx;
+        playerIdx = playerIdx < playerCount ? playerIdx : playerIdx - playerCount;
+        const player = this.players[playerIdx];
+        while (!player.hasFullHand()) {
+          if (this.deck.length < 0) break labelCancelLoops;
+          player.cards.push(this.deck.cards.pop());
+        }
       }
-    });
-
-    // increment round
-    this.round ? this.round +=1 : this.round = 1;
+    }
   }
 
   _setTrump() {
@@ -198,11 +226,10 @@ export default class Game {
         }
         break;
       case MOVES[3]: // end-attack
-        if (['thrower', 'attacker', 'defender'].indexOf(playerStatus) < 0) {
-          result.message = `Incorrect player status: ${playerStatus}`;
-          break;
+      const { canEndAttack } = this._canEndAttack();
+        if (canEndAttack) {
+          result.valid = true;
         }
-        result.valid = true;
         break;
       case MOVES[4]: // pick-up
         if (['defender'].indexOf(playerStatus) < 0) {
@@ -237,7 +264,8 @@ export default class Game {
         result.ok = true;
         break;
       case MOVES[3]: // end-attack
-
+        this.endAttackPlayerIdList.push(player.id);
+        result.ok = true;
         break;
       case MOVES[4]: // pick-up
 
@@ -266,4 +294,54 @@ export default class Game {
     return { canDefend };
   }
 
+  _canMove({ player }) {
+    const endedAttack = this.endAttackPlayerIdList.find((playerId) => (
+      playerId === player.id
+    ));
+    const { hasCards } = player.hasCards();
+    const canMove = (!endedAttack && hasCards);
+    return { canMove };
+  }
+
+  _canEndAttack() {
+    const allCardsDefened = this.cardsDefense.length === this.cardsOffense.length;
+    const canEndAttack = allCardsDefened;
+    return { canEndAttack };
+  }
+
+  _canEndRound() {
+    let activePlayerCount = this.players.reduce((prev, player) => {
+      const { hasCards } = player.hasCards();
+      if (hasCards) {
+        prev += 1;
+      }
+      return prev;
+    }, 0);
+    const canEndRound = this.endAttackPlayerIdList.length === activePlayerCount;
+    return { canEndRound };
+  }
+
+  _endRound() {
+    this.round ? this.round += 1 : this.round = 1;
+    this._cleanTableCards();
+    this._deal();
+    this.endAttackPlayerIdList = [];
+    // update player statuses
+  }
+
+  _cleanTableCards() {
+    this.cardsBeaten = this.cardsBeaten || [];
+    this.cardsOffense.forEach((card) => this.cardsBeaten.push(card));
+    this.cardsDefense.forEach((card) => {
+      if (card) {
+        this.cardsBeaten.push(card);
+      }
+    });
+    this.cardsOffense = [];
+    this.cardsDefense = [];
+  }
+
+  _getAttackerIdx() {
+    return this.players.findIndex(p => p.status === 'attacker');
+  }
 }

@@ -171,7 +171,7 @@ test('Game.makeMove() throw-in', (t) => {
   t.end();
 });
 
-test.only('Game.makeMove() defend', (t) => {
+test('Game.makeMove() defend', (t) => {
   const gameBefore = {
     id: 'gameId1',
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
@@ -237,7 +237,7 @@ test.only('Game.makeMove() defend', (t) => {
   t.true(ok, 'result is ok');
   t.is(game.cardsDefense[1].toString(), move.card, 'card was moved to cardsDefense');
   const player = game._getPlayerById(move.playerId);
-  t.is(player.cards.length, 5, 'player has 1 less card');
+  t.is(player.cards.length, 4, 'player has 1 less card');
   const card = player.cards.find((playerCard) => playerCard.toString() === move.card );
   t.is(card, undefined, 'player no longer has the card');
   t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');

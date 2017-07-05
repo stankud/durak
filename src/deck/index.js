@@ -19,6 +19,8 @@ const ranks = {
   6: 0
 };
 
+export { ranks };
+
 export default class Deck {
   constructor({ savedDeck } = {}) {
     this.cards = [];

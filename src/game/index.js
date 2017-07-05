@@ -43,6 +43,9 @@ export default class Game {
     const result = { ok: false };
     const player = this._getPlayerById(move.playerId);
     const card = new Card({ rank: move.card[0], suit: move.card[1] });
+    const cardOffense = move.cardOffense 
+      ? new Card({ rank: move.cardOffense[0], suit: move.cardOffense[1] })
+      : null;
     const type = move.type;
     if (!player) {
       result.message = 'Player not found';
@@ -53,12 +56,12 @@ export default class Game {
       result.message = "Player doesn't have card";
       return result;
     }
-    const { valid, message: ValidateMessage } = this._validateMove({ player, card, type });
+    const { valid, message: ValidateMessage } = this._validateMove({ player, card, type, cardOffense });
     if (!valid) {
       result.message = validateMessage;
       return result;
     }
-    const executeMoveResult = this._executeMove({ player, card, type });
+    const executeMoveResult = this._executeMove({ player, card, type, cardOffense });
     if (!executeMoveResult.ok) {
       result.message = executeMoveResult.message;
       return result;
@@ -180,7 +183,7 @@ export default class Game {
           result.message = `Incorrect player status: ${playerStatus}`;
           break;
         }
-        // can card be defended?
+        const { canDefend } = this._canDefendWithCard({ card, cardOffense });
         result.valid = true;
         break;
       case MOVES[2]: // throw-in
@@ -214,14 +217,19 @@ export default class Game {
     return result;
   }
 
-  _executeMove({ player, card, type }) {
+  _executeMove({ player, card, type, cardOffense }) {
     const result = { ok: false };
     switch (type) {
       case MOVES[0]: // attack
         
         break;
       case MOVES[1]: // defend
-
+        player.removeCard(card);
+        const cardOffenseIdx = this.cardsOffense.findIndex((card) => (
+          card.toString() === cardOffense.toString())
+        );
+        this.cardsDefense[cardOffenseIdx] = card;
+        result.ok = true;
         break;
       case MOVES[2]: // throw-in
         player.removeCard(card);
@@ -248,7 +256,14 @@ export default class Game {
     return { canThrowIn };
   }
 
-  _canBeatCard({ card, cardOffense }) {
-
+  _canDefendWithCard({ card, cardOffense }) {
+    let canDefend = false;
+    if (card.isHigherRank(cardOffense) && card.isSameSuit(cardOffense)) {
+      canDefend = true;
+    } else if (card.suit === this.trumpCard.suit) {
+      canDefend = true;
+    }
+    return { canDefend };
   }
+
 }

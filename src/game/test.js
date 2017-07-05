@@ -243,3 +243,49 @@ test('Game.makeMove() defend', (t) => {
   t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
   t.end();
 });
+
+test('Game.makeMove() end-attack', (t) => {
+  const gameAfter = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],
+    cardsOffense: ['8D', 'QH'],
+    cardsDefense: ['QD', 'KH'],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', '7H', 'AC', 'KS'],
+      status: 'thrower'
+    }, {
+      id: 'id2',
+      cards: ['KD', '7C', 'TH', 'TC', '6D', 'QS'],
+      status: 'thrower'
+    }, {
+      id: 'id3',
+      cards: ['9H', '7D', 'TS', 'AD', '6S'],
+      status: 'attacker'
+    }, {
+      id: 'id4',
+      cards: ['TD', '6H', 'QC', '8H'],
+      status: 'defender'
+    }],
+    trumpCard: '8S',
+    round: 1,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
+  };
+  const move = {
+    playerId: 'id4',
+    type: 'defend',
+    card: 'KH',
+    cardOffense: 'QH'
+  };
+  const game = new Game({ savedGame: gameBefore });
+  const { ok, message } = game.makeMove({ move });
+  t.true(ok, 'result is ok');
+  t.is(game.cardsDefense[1].toString(), move.card, 'card was moved to cardsDefense');
+  const player = game._getPlayerById(move.playerId);
+  t.is(player.cards.length, 4, 'player has 1 less card');
+  const card = player.cards.find((playerCard) => playerCard.toString() === move.card );
+  t.is(card, undefined, 'player no longer has the card');
+  t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
+  t.end();
+});

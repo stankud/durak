@@ -43,7 +43,7 @@ export default class Game {
     const result = { ok: false };
     const player = this._getPlayerById(move.playerId);
     const card = new Card({ rank: move.card[0], suit: move.card[1] });
-    const cardOffense = move.cardOffense 
+    const cardOffense = move.cardOffense
       ? new Card({ rank: move.cardOffense[0], suit: move.cardOffense[1] })
       : null;
     const type = move.type;

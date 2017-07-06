@@ -140,7 +140,10 @@ export default class Game {
 
   _deal() {
     const attackerIdx = this._getAttackerIdx();
+    const defenderIdx = this._getDefenderIdx();
     const playerCount = this.players.length;
+    // keen the loop going 2 extra iterations to circle back around to defender
+    const playerCountWithOffset = playerCount + 2;
     if (attackerIdx < 0 ) { // first deal
       this.players.forEach((player) => {
         while (player.cards.length < 6) {
@@ -148,9 +151,11 @@ export default class Game {
         }
       });
     } else { // subsequent deals
-      labelCancelLoops: for (let i = 0; i < playerCount; i += 1) {
-        let playerIdx = i + attackerIdx;
+      labelCancelLoops: for (let i = 0; i < playerCountWithOffset; i += 1) {
+        let playerIdx = i + attackerIdx; // deal to attacker first
         playerIdx = playerIdx < playerCount ? playerIdx : playerIdx - playerCount;
+         // skip defender during first iteration
+        if (playerIdx === defenderIdx && i < playerCount) continue;
         const player = this.players[playerIdx];
         while (!player.hasFullHand()) {
           if (this.deck.length < 0) break labelCancelLoops;
@@ -343,5 +348,9 @@ export default class Game {
 
   _getAttackerIdx() {
     return this.players.findIndex(p => p.status === 'attacker');
+  }
+
+  _getDefenderIdx() {
+    return this.players.findIndex(p => p.status === 'defender');
   }
 }

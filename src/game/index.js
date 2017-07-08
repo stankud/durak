@@ -76,9 +76,9 @@ export default class Game {
       result.message = executeMoveResult.message;
       return result;
     }
-    const { canEndRound } = this._canEndRound();
+    const { canEndRound } = this._canEndRound({ moveType: type });
     if (canEndRound) {
-      this._endRound();
+      this._endRound({ moveType: type });
       result.message = 'Round ended';
     }
     result.ok = true;
@@ -99,6 +99,7 @@ export default class Game {
     this.endAttackPlayerIdList = [];
     this.players = playerIds.map(id => new Player({ id }));
     this._deal();
+    this._updatePlayerStatuses();
     this._setTrump();
     this._determineFirstPlayer();
     // ngs = dealer.updateLegalMoves({ cgs: ngs }).ngs;
@@ -136,6 +137,30 @@ export default class Game {
     });
     this.lowestTrumpPlayerId = lowestTrumpPlayerId;
     this.round = round;
+  }
+
+  _updatePlayerStatuses({ moveType } = {}) {
+    const playerCount = this.players.length;
+    const offset = moveType === 'pick-up' ? 1 : 0;
+    const round = this.round;
+    if (!round || round === 1) { // intial update
+
+    } else { // subsequent update
+      const defenderIdx = this._getDefenderIdx() + offset;
+      const newAttackerIdx = (defenderIdx < playerCount)
+        ? defenderIdx : defenderIdx - playerCount;
+      const newDefenderIdx = (defenderIdx + 1) < playerCount
+        ? (defenderIdx + 1) : (defenderIdx + 1) - playerCount;
+      this.players.forEach((player, idx) => {
+        let newStatus = 'thrower';
+        if (idx === newAttackerIdx) {
+          newStatus = 'attacker';
+        } else if (idx === newDefenderIdx) {
+          newStatus = 'defender';
+        }
+        player.status = newStatus;
+      });
+    }
   }
 
   _deal() {
@@ -314,24 +339,31 @@ export default class Game {
     return { canEndAttack };
   }
 
-  _canEndRound() {
-    let activePlayerCount = this.players.reduce((prev, player) => {
+  _getActivePlayerCount() {
+    const count = this.players.reduce((prev, player) => {
       const { hasCards } = player.hasCards();
       if (hasCards) {
         prev += 1;
       }
       return prev;
     }, 0);
-    const canEndRound = this.endAttackPlayerIdList.length === activePlayerCount;
+    return count;
+  }
+
+  _canEndRound({ moveType }) {
+    const activePlayerCount = this._getActivePlayerCount();
+    const offset = moveType === 'pick-up' ? 1 : 0;
+    const endAttackCount = this.endAttackPlayerIdList.length + offset;
+    const canEndRound = endAttackCount === activePlayerCount;
     return { canEndRound };
   }
 
-  _endRound() {
+  _endRound({ moveType }) {
     this.round ? this.round += 1 : this.round = 1;
     this._cleanTableCards();
     this._deal();
     this.endAttackPlayerIdList = [];
-    // update player statuses
+    this._updatePlayerStatuses({ moveType })
   }
 
   _cleanTableCards() {

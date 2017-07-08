@@ -98,6 +98,7 @@ export default class Game {
     this.cardsDefense = [];
     this.endAttackPlayerIdList = [];
     this.players = playerIds.map(id => new Player({ id }));
+    this.round = 1;
     this._deal();
     this._updatePlayerStatuses();
     this._setTrump();

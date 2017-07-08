@@ -315,7 +315,7 @@ test('Game.makeMove() end-attack', (t) => {
   t.end();
 });
 
-test.only('Game.makeMove() end-attack and end round', (t) => {
+test('Game.makeMove() end-attack and end round', (t) => {
   const gameBefore = {
     id: 'gameId1',
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD', 'JC', '9S', '8C', 'AH'],

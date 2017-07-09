@@ -97,6 +97,7 @@ export default class Game {
     this.cardsOffense = [];
     this.cardsDefense = [];
     this.endAttackPlayerIdList = [];
+    this.cardsBeaten = [];
     this.players = playerIds.map(id => new Player({ id }));
     this.round = 1;
     this._deal();
@@ -113,6 +114,7 @@ export default class Game {
       cardsOffense,
       cardsDefense,
       endAttackPlayerIdList,
+      cardsBeaten,
       players,
       trumpCard,
       round,
@@ -124,6 +126,7 @@ export default class Game {
     this.cardsOffense = cardsOffense.map(c => new Card({ rank: c[0], suit: c[1] }));
     this.cardsDefense = cardsDefense.map(c => new Card({ rank: c[0], suit: c[1] }));
     this.endAttackPlayerIdList = endAttackPlayerIdList || [];
+    this.cardsBeaten = cardsBeaten || [];
     this.players = players.map(({ id, cards, status }) => {
       const _cards = cards.map(c => new Card({ rank: c[0], suit: c[1] }));
       return new Player({ id, cards: _cards, status });
@@ -279,7 +282,9 @@ export default class Game {
     const result = { ok: false };
     switch (type) {
       case MOVES[0]: // attack
-        
+        player.removeCard(card);
+        this.cardsOffense.push(card);
+        result.ok = true;
         break;
       case MOVES[1]: // defend
         player.removeCard(card);

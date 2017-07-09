@@ -29,7 +29,7 @@ export default class Player {
       result.message = `Unable to remomve non-exisitng card: ${card.toString()}`;
       return result;
     }
-    this.cards.splice(-1, 1);
+    this.cards.splice(idx, 1);
     result.ok = true;
     return result;
   }

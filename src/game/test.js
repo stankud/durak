@@ -391,7 +391,6 @@ test('Game.makeMove() end-attack and end round', (t) => {
   t.end();
 });
 
-
 test('Game.makeMove() attack', (t) => {
   const gameBefore = {
     id: 'gameId1',
@@ -461,6 +460,81 @@ test('Game.makeMove() attack', (t) => {
   t.true(ok, 'result is ok');
   t.is(message, undefined, 'no message returned');
   t.is(game.cardsOffense.length, 1, 'cardsOffense has 1 card');
+  t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
+  t.end();
+});
+
+test('Game.makeMove() defend skip 1 card', (t) => {
+  const gameBefore = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD'],
+    cardsOffense: ['6H', '6S'],
+    cardsDefense: [],
+    cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
+    endAttackPlayerIdList: [],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', '7H', 'AC', 'KS', '8C'],
+      status: 'defender'
+    }, {
+      id: 'id2',
+      cards: ['KD', '7C', 'TH', 'TC', '6D', 'QS'],
+      status: 'thrower'
+    }, {
+      id: 'id3',
+      cards: ['9H', '7D', 'TS', 'AD', 'AH'],
+      status: 'thrower'
+    }, {
+      id: 'id4',
+      cards: ['TD', 'QC', '8H', '9S', 'JC'],
+      status: 'attacker'
+    }],
+    trumpCard: '8S',
+    round: 2,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
+  };
+  const move = {
+    playerId: 'id1',
+    type: 'defend',
+    card: 'KS',
+    cardOffense: '6S'
+  };
+  const gameAfter = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD'],
+    cardsOffense: ['6H', '6S'],
+    cardsDefense: [, 'KS'],
+    cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
+    endAttackPlayerIdList: [],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', '7H', 'AC', '8C'],
+      status: 'defender'
+    }, {
+      id: 'id2',
+      cards: ['KD', '7C', 'TH', 'TC', '6D', 'QS'],
+      status: 'thrower'
+    }, {
+      id: 'id3',
+      cards: ['9H', '7D', 'TS', 'AD', 'AH'],
+      status: 'thrower'
+    }, {
+      id: 'id4',
+      cards: ['TD', 'QC', '8H', '9S', 'JC'],
+      status: 'attacker'
+    }],
+    trumpCard: '8S',
+    round: 2,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
+  };
+  const game = new Game({ savedGame: gameBefore });
+  const { ok, message } = game.makeMove({ move });
+  t.true(ok, 'result is ok');
+  t.is(message, undefined, 'no message returned');
+  t.is(game.cardsOffense.length, 2, 'cardsOffense has correct card count');
+  t.is(game.cardsDefense.length, 2, 'cardsDefense has correct card count');
   t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
   t.end();
 });

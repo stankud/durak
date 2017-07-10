@@ -546,7 +546,7 @@ test('Game.makeMove() defend skip 1 card', (t) => {
   t.end();
 });
 
-test.only('Game.makeMove() pick-up end-round', (t) => {
+test('Game.makeMove() pick-up end-round', (t) => {
   const gameBefore = {
     id: 'gameId1',
     deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD'],

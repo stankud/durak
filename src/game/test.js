@@ -588,6 +588,7 @@ test.only('Game.makeMove() pick-up end-round', (t) => {
     cardsDefense: [],
     cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
     endAttackPlayerIdList: [],
+    pickUpPlayerId: null,
     players: [{
       id: 'id1',
       cards: ['9C', 'JH', 'AC', 'KS', '8C', '6H', '6S', '6D', '7C', '7D', '7H'],
@@ -613,7 +614,7 @@ test.only('Game.makeMove() pick-up end-round', (t) => {
   const game = new Game({ savedGame: gameBefore });
   const { ok, message } = game.makeMove({ move });
   t.true(ok, 'result is ok');
-  t.is(message, undefined, 'no message returned');
+  t.is(message, 'Round ended', 'message returned');
   t.is(game.round, 3, 'correct round');
   t.is(game.players[0].cards.length, 11, 'correct card count for player that picked-up');
   t.is(game.cardsOffense.length, 0, 'cardsOffense has correct card count');

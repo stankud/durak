@@ -184,13 +184,12 @@ export default class Game {
     } else { // subsequent deals
       labelCancelLoops: for (let i = 0; i < playerCountWithOffset; i += 1) {
         let playerIdx = i + attackerIdx; // deal to attacker first
-        playerIdx = playerIdx < playerCount ? playerIdx : playerIdx - playerCount;
+        playerIdx = playerIdx < playerCount ? playerIdx : playerIdx % playerCount;
          // skip defender during first iteration
         if (playerIdx === defenderIdx && i < playerCount) continue;
         const player = this.players[playerIdx];
-        console.log(player, playerIdx);
         while (!player.hasFullHand()) {
-          if (this.deck.length < 0) break labelCancelLoops;
+          if (this.deck.cards.length < 1) break labelCancelLoops;
           player.cards.push(this.deck.cards.pop());
         }
       }

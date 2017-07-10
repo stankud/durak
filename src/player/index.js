@@ -40,6 +40,6 @@ export default class Player {
   }
 
   hasFullHand() {
-    return this.cards.length === 6;
+    return this.cards.length >= 6;
   }
 }

@@ -371,9 +371,9 @@ export default class Game {
     this.round ? this.round += 1 : this.round = 1;
     this._cleanTableCards({ player });
     this._deal();
+    this._updatePlayerStatuses();
     this.endAttackPlayerIdList = [];
     this.pickUpPlayerId = null;
-    this._updatePlayerStatuses()
   }
 
   _cleanTableCards({ player }) {

@@ -32,7 +32,7 @@ export default class Game {
           item.toJSON ? item.toJSON() : item
         ));
       } else {
-        json[prop] = this[prop].toJSON ?
+        json[prop] = (this[prop] && this[prop].toJSON) ?
           this[prop].toJSON() :
           this[prop];
       }
@@ -76,9 +76,9 @@ export default class Game {
       result.message = executeMoveResult.message;
       return result;
     }
-    const { canEndRound } = this._canEndRound({ moveType: type });
+    const { canEndRound } = this._canEndRound();
     if (canEndRound) {
-      this._endRound({ moveType: type });
+      this._endRound({ player });
       result.message = 'Round ended';
     }
     result.ok = true;
@@ -114,6 +114,7 @@ export default class Game {
       cardsOffense,
       cardsDefense,
       endAttackPlayerIdList,
+      pickUpPlayerId,
       cardsBeaten,
       players,
       trumpCard,
@@ -126,6 +127,7 @@ export default class Game {
     this.cardsOffense = cardsOffense.map(c => new Card({ rank: c[0], suit: c[1] }));
     this.cardsDefense = cardsDefense.map(c => new Card({ rank: c[0], suit: c[1] }));
     this.endAttackPlayerIdList = endAttackPlayerIdList || [];
+    this.pickUpPlayerId = pickUpPlayerId || null;
     this.cardsBeaten = cardsBeaten || [];
     this.players = players.map(({ id, cards, status }) => {
       const _cards = cards.map(c => new Card({ rank: c[0], suit: c[1] }));
@@ -143,9 +145,9 @@ export default class Game {
     this.round = round;
   }
 
-  _updatePlayerStatuses({ moveType } = {}) {
+  _updatePlayerStatuses() {
     const playerCount = this.players.length;
-    const offset = moveType === 'pick-up' ? 1 : 0;
+    const offset = this.pickUpPlayerId ? 1 : 0;
     const round = this.round;
     if (!round || round === 1) { // intial update
 
@@ -186,6 +188,7 @@ export default class Game {
          // skip defender during first iteration
         if (playerIdx === defenderIdx && i < playerCount) continue;
         const player = this.players[playerIdx];
+        console.log(player, playerIdx);
         while (!player.hasFullHand()) {
           if (this.deck.length < 0) break labelCancelLoops;
           player.cards.push(this.deck.cards.pop());
@@ -304,7 +307,8 @@ export default class Game {
         result.ok = true;
         break;
       case MOVES[4]: // pick-up
-
+        this.pickUpPlayerId = player.id;
+        result.ok = true;
         break;
       default:
         result.message = `Unsupported move type: ${type}`;
@@ -356,29 +360,30 @@ export default class Game {
     return count;
   }
 
-  _canEndRound({ moveType }) {
+  _canEndRound() {
     const activePlayerCount = this._getActivePlayerCount();
-    const offset = moveType === 'pick-up' ? 1 : 0;
+    const offset = this.pickUpPlayerId ? 1 : 0;
     const endAttackCount = this.endAttackPlayerIdList.length + offset;
     const canEndRound = endAttackCount === activePlayerCount;
     return { canEndRound };
   }
 
-  _endRound({ moveType }) {
+  _endRound({ player }) {
     this.round ? this.round += 1 : this.round = 1;
-    this._cleanTableCards();
+    this._cleanTableCards({ player });
     this._deal();
     this.endAttackPlayerIdList = [];
-    this._updatePlayerStatuses({ moveType })
+    this.pickUpPlayerId = null;
+    this._updatePlayerStatuses()
   }
 
-  _cleanTableCards() {
+  _cleanTableCards({ player }) {
     this.cardsBeaten = this.cardsBeaten || [];
-    this.cardsOffense.forEach((card) => this.cardsBeaten.push(card));
+    const cardsDestination = this.pickUpPlayerId // if pickup push cards to player
+      ? player.cards : this.cardsBeaten; // else push cards to cardsBeaten
+    this.cardsOffense.forEach((card) => cardsDestination.push(card));
     this.cardsDefense.forEach((card) => {
-      if (card) {
-        this.cardsBeaten.push(card);
-      }
+      if (card) cardsDestination.push(card); // only push defined/not null values
     });
     this.cardsOffense = [];
     this.cardsDefense = [];

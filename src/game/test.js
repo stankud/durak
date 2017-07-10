@@ -73,6 +73,7 @@ test('Game.toJSON()', (t) => {
     cardsOffense: ['8D'],
     cardsDefense: ['QD'],
     endAttackPlayerIdList: [],
+    pickUpPlayerId: null,
     cardsBeaten: [],
     players: [{
       id: 'id1',
@@ -140,6 +141,7 @@ test('Game.makeMove() throw-in', (t) => {
     cardsOffense: ['8D', 'QH'],
     cardsDefense: ['QD'],
     endAttackPlayerIdList: [],
+    pickUpPlayerId: null,
     cardsBeaten: [],
     players: [{
       id: 'id1',
@@ -216,6 +218,7 @@ test('Game.makeMove() defend', (t) => {
     cardsOffense: ['8D', 'QH'],
     cardsDefense: ['QD', 'KH'],
     endAttackPlayerIdList: [],
+    pickUpPlayerId: null,
     cardsBeaten: [],
     players: [{
       id: 'id1',
@@ -289,6 +292,7 @@ test('Game.makeMove() end-attack', (t) => {
     cardsOffense: ['8D', 'QH'],
     cardsDefense: ['QD', 'KH'],
     endAttackPlayerIdList: ['id1'],
+    pickUpPlayerId: null,
     cardsBeaten: [],
     players: [{
       id: 'id1',
@@ -358,6 +362,7 @@ test('Game.makeMove() end-attack and end round', (t) => {
     cardsOffense: [],
     cardsDefense: [],
     cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
+    pickUpPlayerId: null,
     endAttackPlayerIdList: [],
     players: [{
       id: 'id1',
@@ -433,6 +438,7 @@ test('Game.makeMove() attack', (t) => {
     cardsDefense: [],
     cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
     endAttackPlayerIdList: [],
+    pickUpPlayerId: null,
     players: [{
       id: 'id1',
       cards: ['9C', 'JH', '7H', 'AC', 'KS', '8C'],
@@ -507,6 +513,7 @@ test('Game.makeMove() defend skip 1 card', (t) => {
     cardsDefense: [, 'KS'],
     cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
     endAttackPlayerIdList: [],
+    pickUpPlayerId: null,
     players: [{
       id: 'id1',
       cards: ['9C', 'JH', '7H', 'AC', '8C'],
@@ -535,6 +542,82 @@ test('Game.makeMove() defend skip 1 card', (t) => {
   t.is(message, undefined, 'no message returned');
   t.is(game.cardsOffense.length, 2, 'cardsOffense has correct card count');
   t.is(game.cardsDefense.length, 2, 'cardsDefense has correct card count');
+  t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
+  t.end();
+});
+
+test.only('Game.makeMove() pick-up end-round', (t) => {
+  const gameBefore = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS', '7S', 'AS', '6C', 'KC', 'JD'],
+    cardsOffense: ['6H', '6S', '6D', '7C', '7D'],
+    cardsDefense: ['7H'],
+    cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
+    endAttackPlayerIdList: ['id3', 'id2', 'id4'],
+    pickUpPlayerId: null,
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', 'AC', 'KS', '8C'],
+      status: 'defender'
+    }, {
+      id: 'id2',
+      cards: ['KD', 'TH', 'TC', 'QS'],
+      status: 'thrower'
+    }, {
+      id: 'id3',
+      cards: ['9H', 'TS', 'AD', 'AH'],
+      status: 'thrower'
+    }, {
+      id: 'id4',
+      cards: ['TD', 'QC', '8H', '9S', 'JC'],
+      status: 'attacker'
+    }],
+    trumpCard: '8S',
+    round: 2,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
+  };
+  const move = {
+    playerId: 'id1',
+    type: 'pick-up'
+  };
+  const gameAfter = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS'],
+    cardsOffense: [],
+    cardsDefense: [],
+    cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
+    endAttackPlayerIdList: [],
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', 'AC', 'KS', '8C', '6H', '6S', '6D', '7C', '7D', '7H'],
+      status: 'thrower'
+    }, {
+      id: 'id2',
+      cards: ['KD', 'TH', 'TC', 'QS', 'KC', '6C'],
+      status: 'attacker'
+    }, {
+      id: 'id3',
+      cards: ['9H', 'TS', 'AD', 'AH', 'AS', '7S'],
+      status: 'defender'
+    }, {
+      id: 'id4',
+      cards: ['TD', 'QC', '8H', '9S', 'JC', 'JD'],
+      status: 'thrower'
+    }],
+    trumpCard: '8S',
+    round: 3,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
+  };
+  const game = new Game({ savedGame: gameBefore });
+  const { ok, message } = game.makeMove({ move });
+  t.true(ok, 'result is ok');
+  t.is(message, undefined, 'no message returned');
+  t.is(game.round, 3, 'correct round');
+  t.is(game.players[0].cards.length, 11, 'correct card count for player that picked-up');
+  t.is(game.cardsOffense.length, 0, 'cardsOffense has correct card count');
+  t.is(game.cardsDefense.length, 0, 'cardsDefense has correct card count');
   t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
   t.end();
 });

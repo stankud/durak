@@ -316,10 +316,15 @@ export default class Game {
   }
 
   _canThrowInCard(card) {
+    let canThrowIn = false;
+    const offset = this.round === 1 ? 1 : 0; // firest beata is 5 cards
+    if (this.cardsOffense.length + offset >= 6) {
+      return { canThrowIn };
+    }
     const result = this.cardsDefense.concat(this.cardsOffense).find((tableCard) => {
       return tableCard.rank === card.rank
     });
-    const canThrowIn = !!result;
+    canThrowIn = !!result;
     return { canThrowIn };
   }
 

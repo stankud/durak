@@ -622,3 +622,37 @@ test('Game.makeMove() pick-up end-round', (t) => {
   t.deepEqual(game.toJSON(), gameAfter, 'correct game JSON');
   t.end();
 });
+
+test('Game.makeMove() defend end-round deck is finished', (t) => {
+  const gameBefore = {
+    id: 'gameId1',
+    deck: ['8S', '9D', 'JS'],
+    cardsOffense: [],
+    cardsDefense: [],
+    cardsBeaten: ['8D', 'QH', 'QD', 'KH'],
+    endAttackPlayerIdList: [],
+    pickUpPlayerId: null,
+    players: [{
+      id: 'id1',
+      cards: ['9C', 'JH', 'AC', 'KS', '8C', '6H', '6S', '6D', '7C', '7D', '7H'],
+      status: 'thrower'
+    }, {
+      id: 'id2',
+      cards: ['KD', 'TH', 'TC', 'QS', 'KC', '6C'],
+      status: 'attacker'
+    }, {
+      id: 'id3',
+      cards: ['9H', 'TS', 'AD', 'AH', 'AS', '7S'],
+      status: 'defender'
+    }, {
+      id: 'id4',
+      cards: ['TD', 'QC', '8H', '9S', 'JC', 'JD'],
+      status: 'thrower'
+    }],
+    trumpCard: '8S',
+    round: 3,
+    lowestTrumpCard: '6S',
+    lowestTrumpPlayerId: 'id3'
+  };
+  t.end();
+});
